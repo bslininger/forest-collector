@@ -8,7 +8,6 @@ public class InteractableNPC : MonoBehaviour, IInteractableObject
     [SerializeField] private string[] _dialogueLines;
 
     public string InteractionPromptText => "Talk";
-    public bool RemoveAfterInteraction => false;
     public Vector3 WorldPosition => transform.position;
 
     public void Interact()

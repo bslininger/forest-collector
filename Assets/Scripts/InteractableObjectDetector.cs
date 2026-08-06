@@ -57,6 +57,12 @@ public class InteractableObjectDetector : MonoBehaviour
 
     private void SetNearestInteractableObject()
     {
+        // Prune any recently destroyed objects from the list
+        _nearbyInteractableObjects.RemoveAll(interactableObject =>
+            interactableObject == null ||
+            interactableObject is UnityEngine.Object unityObject && unityObject == null
+         );
+
         if (_nearbyInteractableObjects.Count < 1)
         {
             NearestInteractableObject = null;
@@ -87,8 +93,6 @@ public class InteractableObjectDetector : MonoBehaviour
         if (NearestInteractableObject == null)
             return;
         IInteractableObject currentNearestInteractableObject = NearestInteractableObject;
-        if (currentNearestInteractableObject.RemoveAfterInteraction)
-            _nearbyInteractableObjects.Remove(currentNearestInteractableObject);
         currentNearestInteractableObject.Interact();
     }
 

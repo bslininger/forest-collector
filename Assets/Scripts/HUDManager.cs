@@ -12,21 +12,13 @@ public class HUDManager : MonoBehaviour
     }
 
     [SerializeField] private InteractableObjectDetector _playerInteractableObjectDetector;
-    [SerializeField] private List<ItemTextPair> _itemTextPairs;
-    [SerializeField] private TMPro.TMP_Text _remainingCapacityText;
     [SerializeField] private TMPro.TMP_Text _deliveredItemsCountText;
     [SerializeField] private TMPro.TMP_Text _interactionPromptText;
     [SerializeField] private Image _dialogueBox;
-
-    private Dictionary<string, TMPro.TMP_Text> _itemTextMap;
     private TMPro.TMP_Text _dialogueText;
 
     private void Awake()
     {
-        _itemTextMap = new();
-        foreach (ItemTextPair itemTextPair in _itemTextPairs)
-            _itemTextMap[itemTextPair.Item.Id] = itemTextPair.Text;
-        SetAllCarriedCountTextTo0();
         _dialogueText = _dialogueBox.GetComponentInChildren<TMPro.TMP_Text>();
     }
 
@@ -38,22 +30,6 @@ public class HUDManager : MonoBehaviour
     private void OnDisable()
     {
         _playerInteractableObjectDetector.InteractionPromptChanged -= SetInteractionPromptText;
-    }
-
-    public void SetCarriedCountText(CollectibleItem collectibleItem, int count)
-    {
-        _itemTextMap[collectibleItem.Id].text = collectibleItem.DisplayName + " x " + count.ToString();
-    }
-
-    public void SetAllCarriedCountTextTo0()
-    {
-        foreach(ItemTextPair itemTextPair in _itemTextPairs)
-            SetCarriedCountText(itemTextPair.Item, 0);
-    }
-
-    public void SetRemainingCapacityText(int remainingCapacity)
-    {
-        _remainingCapacityText.text = "Room left: " + remainingCapacity.ToString();
     }
 
     public void SetDeliveredItemsCountText(int deliveredItemsCount)
