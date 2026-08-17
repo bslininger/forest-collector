@@ -54,12 +54,12 @@ public class StackSizeSelectorPanelController : MonoBehaviour
         slotUIController.OverrideStackText(1);
     }
 
-    public void SetAcceptAction(Action<int> callback)
+    public void SetAcceptCallback(Action<int> callback)
     {
         onAccept = callback;
     }
 
-    public void SetCancelAction(Action callback)
+    public void SetCancelCallback(Action callback)
     {
         onCancel = callback;
     }

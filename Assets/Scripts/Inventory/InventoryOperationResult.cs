@@ -17,23 +17,34 @@ public readonly struct InventoryOperationResult
         TakeFromCursor,
     }
 
+    public readonly struct ChangedSlot
+    {
+        public Inventory Inventory { get; }
+        public int Index { get; }
+        public ChangedSlot (Inventory inventory, int index)
+        {
+            this.Inventory = inventory;
+            this.Index = index;
+        }
+    }
+
     public ResultType OperationResultType { get; }
 
     public bool CursorSlotChanged { get; }
     public int LeftoverItemCount { get; }  // Count of items that couldn't fit in an inventory because it ran out of room; the "overflow" item count.
-    public IReadOnlyList<int> ChangedSlotIndices { get; }
+    public IReadOnlyList<ChangedSlot> ChangedSlots { get; }
 
-    private InventoryOperationResult(ResultType operationResultType, bool cursorSlotChanged, int leftoverItemCount, params int[] changedSlotIndices)
+    private InventoryOperationResult(ResultType operationResultType, bool cursorSlotChanged, int leftoverItemCount, params ChangedSlot[] changedSlots)
     {
-        if (changedSlotIndices == null)
-            throw new ArgumentNullException(nameof(changedSlotIndices));
+        if (changedSlots == null)
+            throw new ArgumentNullException(nameof(changedSlots));
         if (leftoverItemCount < 0)
             throw new ArgumentException("Leftover item count must be non-negative.");
 
         OperationResultType = operationResultType;
         CursorSlotChanged = cursorSlotChanged;
         LeftoverItemCount = leftoverItemCount;
-        ChangedSlotIndices = Array.AsReadOnly(changedSlotIndices.ToArray());
+        ChangedSlots = Array.AsReadOnly(changedSlots.ToArray());
     }
 
     // Factory methods
@@ -42,14 +53,14 @@ public readonly struct InventoryOperationResult
         return new InventoryOperationResult(ResultType.NoOperation, false, 0);
     }
 
-    public static InventoryOperationResult ItemFullyAdded(params int[] changedSlotIndices)
+    public static InventoryOperationResult ItemFullyAdded(params ChangedSlot[] changedSlots)
     {
-        return new InventoryOperationResult(ResultType.ItemFullyAdded, false, 0, changedSlotIndices);
+        return new InventoryOperationResult(ResultType.ItemFullyAdded, false, 0, changedSlots);
     }
 
-    public static InventoryOperationResult ItemPartiallyAdded(int leftoverItemCount, params int[] changedSlotIndices)
+    public static InventoryOperationResult ItemPartiallyAdded(int leftoverItemCount, params ChangedSlot[] changedSlots)
     {
-        return new InventoryOperationResult(ResultType.ItemPartiallyAdded, false, leftoverItemCount, changedSlotIndices);
+        return new InventoryOperationResult(ResultType.ItemPartiallyAdded, false, leftoverItemCount, changedSlots);
     }
 
     public static InventoryOperationResult NoSpace(int leftoverItemCount)
@@ -57,27 +68,27 @@ public readonly struct InventoryOperationResult
         return new InventoryOperationResult(ResultType.NoSpace, false, leftoverItemCount);
     }
 
-    public static InventoryOperationResult PickupToCursor(int? changedSlotIndex)
+    public static InventoryOperationResult PickupToCursor(ChangedSlot? changedSlot)
     {
-        // A null changedSlotIndex represents no inventory slots changing, just the cursor slot (for example, when receiving an item to the cursor, or picking one up off the ground)
-        if (changedSlotIndex.HasValue)
-            return new InventoryOperationResult(ResultType.PickupToCursor, true, 0, changedSlotIndex.Value);
+        // A null changedSlot represents no inventory slots changing, just the cursor slot (for example, when receiving an item to the cursor, or picking one up off the ground)
+        if (changedSlot.HasValue)
+            return new InventoryOperationResult(ResultType.PickupToCursor, true, 0, changedSlot.Value);
         return new InventoryOperationResult(ResultType.PickupToCursor, true, 0);
     }
 
-    public static InventoryOperationResult PlaceFromCursor(int changedSlotIndex)
+    public static InventoryOperationResult PlaceFromCursor(ChangedSlot changedSlot)
     {
-        return new InventoryOperationResult(ResultType.PlaceFromCursor, true, 0, changedSlotIndex);
+        return new InventoryOperationResult(ResultType.PlaceFromCursor, true, 0, changedSlot);
     }
 
-    public static InventoryOperationResult SwapWithCursor(int changedSlotIndex)
+    public static InventoryOperationResult SwapWithCursor(ChangedSlot changedSlot)
     {
-        return new InventoryOperationResult(ResultType.SwapWithCursor, true, 0, changedSlotIndex);
+        return new InventoryOperationResult(ResultType.SwapWithCursor, true, 0, changedSlot);
     }
 
-    public static InventoryOperationResult MergeFromCursor(int changedSlotIndex)
+    public static InventoryOperationResult MergeFromCursor(ChangedSlot changedSlot)
     {
-        return new InventoryOperationResult(ResultType.MergeFromCursor, true, 0, changedSlotIndex);
+        return new InventoryOperationResult(ResultType.MergeFromCursor, true, 0, changedSlot);
     }
 
     public static InventoryOperationResult TakeFromCursor()

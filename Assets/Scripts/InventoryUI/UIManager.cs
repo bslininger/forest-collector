@@ -25,6 +25,7 @@ public class UIManager : MonoBehaviour, IInputLockProvider
     // Controllers
     [SerializeField] private InventoryPanelController _inventoryPanelController;
     private StackSizeSelectorPanelController _activeStackSizeSelectorPanelController;
+    [SerializeField] private ContainerInventoryPanelController _containerInventoryPanelController;
 
     // Accessors
     public Canvas InventoryUICanvas => _inventoryUICanvas;
@@ -66,39 +67,58 @@ public class UIManager : MonoBehaviour, IInputLockProvider
         _inventoryPanelController.ActivateInventoryPanel();
     }
 
-    public void ShowStackSizeSelectorPanel(InventorySlotDisplayInformation displayInformation, Vector2 location, Action<int> acceptButtonAction)
+    private static Vector3 GetBottomRightWorldCorner(RectTransform rectTransform)
+    {
+        Vector3[] corners = new Vector3[4];
+        rectTransform.GetWorldCorners(corners);  // Fills in the array of corner positions. Bottom-left: 0;  top-left: 1;  top-right: 2;  bottom-right: 3
+        return corners[3];
+    }
+
+    // Returns true if the panel successfully opened and false if it did not.
+    public bool ShowStackSizeSelectorPanel(InventorySlotDisplayInformation displayInformation, RectTransform inventorySlotRectTransform, Action<int> acceptButtonCallback, Action cancelButtonCallback)
     {
         if (StackSizeSelectorPanelOpen)
         {
             Debug.Log("A stack size selector panel is already open somewhere. Not opening another one.");
-            return;
+            return false;
         }
 
         if (InputLocked(UIInputLock.InventoryInteraction))
         {
             Debug.Log("Can't open stack size selector panel because the InventoryInteraction UIInputLock is already locked.");
-            return;
+            return false;
         }
 
         GameObject panelInstance = Instantiate(_stackSizeSelectorPrefab, _inventoryUICanvas.transform);
         StackSizeSelectorPanelController stackSizeSelectorPanelController = panelInstance.GetComponent<StackSizeSelectorPanelController>();
         RectTransform stackSizeSelectorPanelRectTransform = panelInstance.GetComponent<RectTransform>();
-        stackSizeSelectorPanelRectTransform.anchoredPosition = location + new Vector2(stackSizeSelectorPanelRectTransform.rect.width / 2 + 10.0f, 0.0f);
+        Vector3 inventorySlotBottomRightCorner = GetBottomRightWorldCorner(inventorySlotRectTransform);
+        Vector3 localAnchorLocation = ((RectTransform)stackSizeSelectorPanelRectTransform.parent).InverseTransformPoint(inventorySlotBottomRightCorner);
+        stackSizeSelectorPanelRectTransform.localPosition = localAnchorLocation + new Vector3(stackSizeSelectorPanelRectTransform.rect.width / 2 + 10.0f, 0.0f, 0.0f);
 
         stackSizeSelectorPanelController.InitializePreviewSlot(displayInformation);
 
-        stackSizeSelectorPanelController.SetAcceptAction((int amount) =>
+        stackSizeSelectorPanelController.SetAcceptCallback((int amount) =>
         {
-            acceptButtonAction?.Invoke(amount);
+            acceptButtonCallback?.Invoke(amount);
             CloseStackSizeSelectorPanel();
         });
-        stackSizeSelectorPanelController.SetCancelAction(() =>
+        stackSizeSelectorPanelController.SetCancelCallback(() =>
         {
+            cancelButtonCallback?.Invoke();
             CloseStackSizeSelectorPanel();
         });
 
         AddInputLock(UIInputLock.InventoryInteraction);
         _activeStackSizeSelectorPanelController = stackSizeSelectorPanelController;
+        return true;
+    }
+
+    public void CancelStackSizeSelectorPanel()
+    {
+        // Simulates clicking the cancel button in cases where the selector needs to be closed without being directly initiated by the player (such as when its parent inventory is closed)
+        if (_activeStackSizeSelectorPanelController != null)
+            _activeStackSizeSelectorPanelController.OnCancelButtonClicked();
     }
 
     public void CloseStackSizeSelectorPanel()
@@ -109,6 +129,11 @@ public class UIManager : MonoBehaviour, IInputLockProvider
             _activeStackSizeSelectorPanelController = null;
             RemoveInputLock(UIInputLock.InventoryInteraction);
         }
+    }
+
+    public void OpenContainer(InventoryContainer container)
+    {
+        _containerInventoryPanelController.OpenContainer(container);
     }
 
     public bool StackSizeSelectorPanelOpen => _activeStackSizeSelectorPanelController != null;

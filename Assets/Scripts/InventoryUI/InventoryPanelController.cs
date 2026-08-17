@@ -4,6 +4,7 @@ public class InventoryPanelController : MonoBehaviour
 {
     [SerializeField] private Inventory _displayedInventory;
     [SerializeField] private InventoryController _inventoryController;
+    [SerializeField] private InventoryInteractionController _inventoryInteractionController;
     [SerializeField] private GameObject _slotPrefab;
     private GameObject[] _inventorySlots;
 
@@ -45,7 +46,7 @@ public class InventoryPanelController : MonoBehaviour
             _inventorySlots[index].name = $"Inventory Slot {index}";
             InventorySlotUIController slotUIController = _inventorySlots[index].transform.GetComponent<InventorySlotUIController>();
             slotUIController.InputLockProvider = UIManager.Instance;
-            _inventoryController.RegisterUIInventorySlot(slotUIController, index);
+            _inventoryInteractionController.RegisterUIInventorySlot(slotUIController, _displayedInventory, index);
         }
 
         // Now, put inventory items into their proper slots in the inventory panel, based on their index locations in the inventory itself
@@ -56,12 +57,12 @@ public class InventoryPanelController : MonoBehaviour
         }
     }
 
-    void UpdateDirtySlots(int[] indicesToUpdate)
+    void UpdateDirtySlots(InventoryOperationResult.ChangedSlot[] changedSlots)
     {
-        foreach (int indexToUpdate in indicesToUpdate)
+        foreach (InventoryOperationResult.ChangedSlot changedSlot in changedSlots)
         {
-            if (indexToUpdate >= 0)  // index -1 (Inventory.CursorSlotIndex) is used for the cursor inventory slot
-                UpdateSlot(indexToUpdate);
+            if (changedSlot.Inventory == _displayedInventory && changedSlot.Index >= 0)  // index -1 (Inventory.CursorSlotIndex) is used for the cursor inventory slot
+                UpdateSlot(changedSlot.Index);
         }
     }
 
@@ -74,10 +75,8 @@ public class InventoryPanelController : MonoBehaviour
     void DestroyAllSlots()
     {
         foreach (Transform child in transform)
-        {
             Destroy(child.gameObject);
-        }
         _inventorySlots = null;
-        _inventoryController.ClearAllRegistrations();
+        _inventoryInteractionController.ClearRegistrationsByInventory(_displayedInventory);
     }
 }

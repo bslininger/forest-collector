@@ -45,12 +45,10 @@ public class InventoryItemCursorFollower : MonoBehaviour
         _rectTransform.anchoredPosition = localMousePosition + new Vector2(_rectTransform.rect.width / 2, -_rectTransform.rect.height / 2);
     }
 
-    private void UpdateCursorItem(int[] indicesToUpdate)
+    private void UpdateCursorItem(InventoryOperationResult.ChangedSlot[] changedSlots)
     {
-        if (!Array.Exists(indicesToUpdate, element => element == Inventory.CursorSlotIndex))
-        {
+        if (!Array.Exists(changedSlots, changedSlot => changedSlot.Inventory == _playerInventory && changedSlot.Index == Inventory.CursorSlotIndex))
             return;
-        }
         // Called when notified that the item on the cursor has changed
         InventorySlotDisplayInformation cursorSlotDisplayInformation = _playerInventory.GetSlotDisplayInformation(Inventory.CursorSlotIndex);
         if (!cursorSlotDisplayInformation.HasItem)
@@ -61,9 +59,7 @@ public class InventoryItemCursorFollower : MonoBehaviour
         else
         {
             if (_slotUIElement == null)
-            {
                 _slotUIElement = Instantiate(_slotPrefab, transform);
-            }
             // Set the RectTransform width and height to 72 x 72 to match other inventory slots, and the local position to x = 32, y = 32 to sit at the center of the parent container (which is 64 x 64)
             RectTransform rectTransform = _slotUIElement.GetComponent<RectTransform>();
             rectTransform.sizeDelta = new Vector2(72, 72);

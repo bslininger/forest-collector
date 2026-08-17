@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 public static class EventManager
 {
-    public static event Action<int[]> InventoryUpdateEvent;
+    public static event Action<InventoryOperationResult.ChangedSlot[]> InventoryUpdateEvent;
     public static event System.Action<InventorySlotUIController> InventorySlotClickedEvent;
 
-    public static void TriggerInventoryUpdateEvent(int[] indicesToUpdate)
+    public static void TriggerInventoryUpdateEvent(InventoryOperationResult.ChangedSlot[] changedSlots)
     {
-        InventoryUpdateEvent?.Invoke(indicesToUpdate);
+        InventoryUpdateEvent?.Invoke(changedSlots);
     }
 
     public static void TriggerInventorySlotClickedEvent(InventorySlotUIController slotUIController)

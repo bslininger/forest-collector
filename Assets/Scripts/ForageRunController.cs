@@ -62,6 +62,8 @@ public class ForageRunController : MonoBehaviour
             ItemPickup itemPickup = hit.collider.GetComponentInParent<ItemPickup>();
             if (itemPickup == null)
                 return;
+            if (!_interactableObjectDetector.IsInRange(itemPickup))
+                return;
             itemPickup.Pickup();
         }
     }
@@ -117,5 +119,10 @@ public class ForageRunController : MonoBehaviour
         _playerController.SetMovementEnabled(true);
         _interactableObjectDetector.SetInteractionEnabled(true);
         _dialogueBoxOpen = false;
+    }
+
+    public void HandleWorldContainerInteract(InventoryContainer worldContainer)
+    {
+        _inventoryUIManager.OpenContainer(worldContainer);
     }
 }

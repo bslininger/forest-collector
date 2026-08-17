@@ -104,4 +104,11 @@ public class InteractableObjectDetector : MonoBehaviour
             _interactAction.action.Disable();
     }
 
+    public bool IsInRange(IInteractableObject interactableObject)
+    {
+        if (interactableObject == null || _nearbyInteractableObjects == null)
+            return false;
+        return _nearbyInteractableObjects.Contains(interactableObject);
+    }
+
 }
