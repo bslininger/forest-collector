@@ -29,10 +29,12 @@ public class ForageRunController : MonoBehaviour
     {
         _clickAction.action.Enable();
         _clickAction.action.performed += HandleClick;
+        _interactableObjectDetector.InteractableObjectExitedRange += HandleInteractableObjectExitedRange;
     }
 
     private void OnDisable()
     {
+        _interactableObjectDetector.InteractableObjectExitedRange -= HandleInteractableObjectExitedRange;
         _clickAction.action.performed -= HandleClick;
         _clickAction.action.Disable();
     }
@@ -59,12 +61,10 @@ public class ForageRunController : MonoBehaviour
         Ray ray = _worldCamera.ScreenPointToRay(mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            ItemPickup itemPickup = hit.collider.GetComponentInParent<ItemPickup>();
-            if (itemPickup == null)
+            IClickInteractableObject interactableObject = hit.collider.GetComponentInParent<IClickInteractableObject>();
+            if (interactableObject == null)
                 return;
-            if (!_interactableObjectDetector.IsInRange(itemPickup))
-                return;
-            itemPickup.Pickup();
+            _interactableObjectDetector.TryInteract(interactableObject);
         }
     }
 
@@ -124,5 +124,11 @@ public class ForageRunController : MonoBehaviour
     public void HandleWorldContainerInteract(InventoryContainer worldContainer)
     {
         _inventoryUIManager.OpenContainer(worldContainer);
+    }
+
+    private void HandleInteractableObjectExitedRange(IInteractableObject interactableObject)
+    {
+        if (interactableObject is InteractableContainer interactableContainer)
+            _inventoryUIManager.CloseContainerIfOpened(interactableContainer.InventoryContainer);
     }
 }

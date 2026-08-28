@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ItemPickup : MonoBehaviour, IInteractableObject
+public class ItemPickup : MonoBehaviour, IClickInteractableObject
 {
     [SerializeField] private ForageRunController _gameController;
     [SerializeField] private CollectibleItem _scriptableCollectibleItem;

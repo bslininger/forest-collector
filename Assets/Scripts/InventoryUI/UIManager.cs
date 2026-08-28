@@ -136,6 +136,11 @@ public class UIManager : MonoBehaviour, IInputLockProvider
         _containerInventoryPanelController.OpenContainer(container);
     }
 
+    public void CloseContainerIfOpened(InventoryContainer container)
+    {
+        _containerInventoryPanelController.CloseContainerIfActive(container);
+    }
+
     public bool StackSizeSelectorPanelOpen => _activeStackSizeSelectorPanelController != null;
 
     #region Locks

@@ -10,6 +10,7 @@ public class InteractableObjectDetector : MonoBehaviour
 
     public IInteractableObject NearestInteractableObject { get; private set; }
     public event Action<InteractionPromptInfo> InteractionPromptChanged;
+    public event Action<IInteractableObject> InteractableObjectExitedRange;
 
     private void Awake()
     {
@@ -51,8 +52,8 @@ public class InteractableObjectDetector : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         IInteractableObject interactableObject = other.GetComponent<IInteractableObject>();
-        if (interactableObject != null && _nearbyInteractableObjects.Contains(interactableObject))
-            _nearbyInteractableObjects.Remove(interactableObject);
+        if (interactableObject != null && _nearbyInteractableObjects.Remove(interactableObject))
+            InteractableObjectExitedRange?.Invoke(interactableObject);
     }
 
     private void SetNearestInteractableObject()
@@ -93,7 +94,7 @@ public class InteractableObjectDetector : MonoBehaviour
         if (NearestInteractableObject == null)
             return;
         IInteractableObject currentNearestInteractableObject = NearestInteractableObject;
-        currentNearestInteractableObject.Interact();
+        TryInteract(currentNearestInteractableObject);
     }
 
     public void SetInteractionEnabled(bool enabled)
@@ -111,4 +112,11 @@ public class InteractableObjectDetector : MonoBehaviour
         return _nearbyInteractableObjects.Contains(interactableObject);
     }
 
+    public bool TryInteract(IInteractableObject interactableObject)
+    {
+        if (!IsInRange(interactableObject))
+            return false;
+        interactableObject.Interact();
+        return true;
+    }
 }

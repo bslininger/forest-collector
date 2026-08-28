@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public interface IInteractableObject
+public interface IInteractableObject : IWorldPositionedObject
 {
     string InteractionPromptText { get; }
-    Vector3 WorldPosition { get; }
     void Interact();
 }

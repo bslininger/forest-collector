@@ -63,6 +63,13 @@ public class ContainerInventoryPanelController : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    public void CloseContainerIfActive(InventoryContainer inventoryContainer)
+    {
+        if (_activeContainer == null || _activeContainer != inventoryContainer)
+            return;
+        CloseContainer();
+    }
+
     void UpdateDirtySlots(InventoryOperationResult.ChangedSlot[] changedSlots)
     {
         foreach (InventoryOperationResult.ChangedSlot changedSlot in changedSlots)
