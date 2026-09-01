@@ -131,9 +131,9 @@ public class UIManager : MonoBehaviour, IInputLockProvider
         }
     }
 
-    public void OpenContainer(InventoryContainer container)
+    public void OpenContainer(InventoryContainer container, string containerName, Sprite containerIcon)
     {
-        _containerInventoryPanelController.OpenContainer(container);
+        _containerInventoryPanelController.OpenContainer(container, containerName, containerIcon);
     }
 
     public void CloseContainerIfOpened(InventoryContainer container)

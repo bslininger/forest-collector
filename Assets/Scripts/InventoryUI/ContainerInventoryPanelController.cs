@@ -29,10 +29,13 @@ public class ContainerInventoryPanelController : MonoBehaviour
         EventManager.InventoryUpdateEvent -= UpdateDirtySlots;
     }
 
-    public void OpenContainer(InventoryContainer container)
+    public void OpenContainer(InventoryContainer container, string containerName, Sprite containerIcon)
     {
         if (gameObject.activeSelf)
             return;
+
+        _containerNameText.text = containerName;
+        _containerIcon.sprite = containerIcon;
 
         _activeContainer = container;
         HandleActionButtonDisplayChanged();
