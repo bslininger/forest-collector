@@ -9,6 +9,9 @@ public readonly struct InventoryOperationResult
         NoOperation,
         ItemFullyAdded,
         ItemPartiallyAdded,
+        ItemFullyRemoved,
+        ItemPartiallyRemoved,
+        InsufficientItems,
         NoSpace,
         PickupToCursor,
         PlaceFromCursor,
@@ -31,7 +34,7 @@ public readonly struct InventoryOperationResult
     public ResultType OperationResultType { get; }
 
     public bool CursorSlotChanged { get; }
-    public int LeftoverItemCount { get; }  // Count of items that couldn't fit in an inventory because it ran out of room; the "overflow" item count.
+    public int LeftoverItemCount { get; }  // Count of items that couldn't be processed from the total number requested: either ones that couldn't fit in an inventory because it ran out of room (the "overflow" item count), or requested items that could not be removed.
     public IReadOnlyList<ChangedSlot> ChangedSlots { get; }
 
     private InventoryOperationResult(ResultType operationResultType, bool cursorSlotChanged, int leftoverItemCount, params ChangedSlot[] changedSlots)
@@ -61,6 +64,21 @@ public readonly struct InventoryOperationResult
     public static InventoryOperationResult ItemPartiallyAdded(int leftoverItemCount, params ChangedSlot[] changedSlots)
     {
         return new InventoryOperationResult(ResultType.ItemPartiallyAdded, false, leftoverItemCount, changedSlots);
+    }
+
+    public static InventoryOperationResult ItemFullyRemoved(params ChangedSlot[] changedSlots)
+    {
+        return new InventoryOperationResult(ResultType.ItemFullyRemoved, false, 0, changedSlots);
+    }
+
+    public static InventoryOperationResult ItemPartiallyRemoved(int leftoverItemCount, params ChangedSlot[] changedSlots)
+    {
+        return new InventoryOperationResult(ResultType.ItemPartiallyRemoved, false, leftoverItemCount, changedSlots);
+    }
+
+    public static InventoryOperationResult InsufficientItems(int leftoverItemCount)
+    {
+        return new InventoryOperationResult(ResultType.InsufficientItems, false, leftoverItemCount);
     }
 
     public static InventoryOperationResult NoSpace(int leftoverItemCount)

@@ -1,5 +1,3 @@
-﻿using UnityEngine;
-
-public interface IClickInteractableObject : IInteractableObject
+﻿public interface IClickInteractableObject : IInteractableObject
 {
 }

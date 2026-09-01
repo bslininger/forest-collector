@@ -4,11 +4,9 @@ using UnityEngine.EventSystems;
 public class ItemPickup : MonoBehaviour, IClickInteractableObject
 {
     [SerializeField] private ForageRunController _gameController;
-    [SerializeField] private CollectibleItem _scriptableCollectibleItem;
     [SerializeField] private Item _inventoryItem;
     private IInputLockProvider _inputLockProvider;
-    public CollectibleItem ScriptableCollectibleItem => _scriptableCollectibleItem;
-    public string InteractionPromptText => "Collect " + _scriptableCollectibleItem.DisplayName;
+    public string InteractionPromptText => "Collect " + _inventoryItem.DisplayName;
     public Vector3 WorldPosition => transform.position;
     public Item InventoryItem => _inventoryItem;
 

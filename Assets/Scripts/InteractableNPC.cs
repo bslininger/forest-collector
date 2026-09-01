@@ -6,6 +6,7 @@ public class InteractableNPC : MonoBehaviour, IInteractableObject
 
     [SerializeField] private ForageRunController _gameController;
     [SerializeField] private string[] _dialogueLines;
+    [SerializeField] private ItemRequirementTracker _itemRequirementTracker;
 
     public string InteractionPromptText => "Talk";
     public Vector3 WorldPosition => transform.position;
@@ -15,7 +16,7 @@ public class InteractableNPC : MonoBehaviour, IInteractableObject
         if (_gameController == null)
             return;
 
-        int dialogueIndex = _gameController.BerryQuestCompleted ? 1 : 0;
+        int dialogueIndex = _itemRequirementTracker.IsComplete ? 1 : 0;
         _gameController.DisplayDialogue(_dialogueLines[dialogueIndex]);
     }
 }

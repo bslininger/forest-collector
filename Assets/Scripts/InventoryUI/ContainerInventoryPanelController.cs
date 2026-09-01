@@ -11,6 +11,8 @@ public class ContainerInventoryPanelController : MonoBehaviour
     [SerializeField] private TMP_Text _containerNameText;
     [SerializeField] private Image _containerIcon;
     [SerializeField] private Button _actionButton;
+    [SerializeField] private GameObject _actionButtonRow;
+    [SerializeField] private TMP_Text _actionButtonText;
     [SerializeField] private Button _closeButton;
 
 
@@ -33,6 +35,8 @@ public class ContainerInventoryPanelController : MonoBehaviour
             return;
 
         _activeContainer = container;
+        HandleActionButtonDisplayChanged();
+        _activeContainer.ActionDisplayStateChanged += HandleActionButtonDisplayChanged;
         gameObject.SetActive(true);
 
         // First, generate all slots
@@ -59,6 +63,7 @@ public class ContainerInventoryPanelController : MonoBehaviour
         _inventoryInteractionController.ClearRegistrationsByInventory(_activeContainer.Contents);
         foreach (Transform child in _slotGrid)
             Destroy(child.gameObject);
+        _activeContainer.ActionDisplayStateChanged -= HandleActionButtonDisplayChanged;
         _activeContainer = null;
         gameObject.SetActive(false);
     }
@@ -70,7 +75,7 @@ public class ContainerInventoryPanelController : MonoBehaviour
         CloseContainer();
     }
 
-    void UpdateDirtySlots(InventoryOperationResult.ChangedSlot[] changedSlots)
+    private void UpdateDirtySlots(InventoryOperationResult.ChangedSlot[] changedSlots)
     {
         foreach (InventoryOperationResult.ChangedSlot changedSlot in changedSlots)
         {
@@ -79,11 +84,27 @@ public class ContainerInventoryPanelController : MonoBehaviour
         }
     }
 
-    void UpdateSlot(int index)
+    private void UpdateSlot(int index)
     {
         if (_activeContainer == null || _containerInventorySlots == null)
             return;
         InventorySlotUIController slotUIController = _containerInventorySlots[index].transform.GetComponent<InventorySlotUIController>();
         slotUIController.SetSlot(_activeContainer.Contents.GetSlotDisplayInformation(index));
+    }
+
+    private void HandleActionButtonDisplayChanged()
+    {
+        if (_activeContainer == null)
+            return;
+        InventoryContainerActionDisplayState actionButtonDisplayState = _activeContainer.ActionDisplayState;
+        _actionButton.interactable = actionButtonDisplayState.Enabled;
+        _actionButtonRow.gameObject.SetActive(actionButtonDisplayState.Visible);
+        _actionButtonText.text = actionButtonDisplayState.Text;
+    }
+
+    public void PerformButtonAction()
+    {
+        if (_activeContainer != null)
+            _activeContainer.TryExecuteAction();
     }
 }

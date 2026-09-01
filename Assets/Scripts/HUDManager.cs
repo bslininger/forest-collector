@@ -1,18 +1,9 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HUDManager : MonoBehaviour
 {
-    [System.Serializable]
-    private class ItemTextPair
-    {
-        public CollectibleItem Item;
-        public TMPro.TMP_Text Text;
-    }
-
     [SerializeField] private InteractableObjectDetector _playerInteractableObjectDetector;
-    [SerializeField] private TMPro.TMP_Text _deliveredItemsCountText;
     [SerializeField] private TMPro.TMP_Text _interactionPromptText;
     [SerializeField] private Image _dialogueBox;
     private TMPro.TMP_Text _dialogueText;
@@ -30,11 +21,6 @@ public class HUDManager : MonoBehaviour
     private void OnDisable()
     {
         _playerInteractableObjectDetector.InteractionPromptChanged -= SetInteractionPromptText;
-    }
-
-    public void SetDeliveredItemsCountText(int deliveredItemsCount)
-    {
-        _deliveredItemsCountText.text = "Total items delivered: " + deliveredItemsCount.ToString();
     }
 
     public void SetInteractionPromptText(InteractionPromptInfo interactionPromptInfo)

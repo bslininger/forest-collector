@@ -1,5 +1,3 @@
-﻿using UnityEngine;
-
-public interface ITargetableObject : IWorldPositionedObject
+﻿public interface ITargetableObject : IWorldPositionedObject
 {
 }

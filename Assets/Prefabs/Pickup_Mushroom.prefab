@@ -128,6 +128,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickup
   _gameController: {fileID: 0}
   _scriptableCollectibleItem: {fileID: 11400000, guid: 081e8fd0803a7d04989201424931d34b, type: 2}
+  _inventoryItem: {fileID: 11400000, guid: 0d69dc65468f8d74c95c3e4abd64f169, type: 2}
 --- !u!54 &-1251626246024266731
 Rigidbody:
   m_ObjectHideFlags: 0

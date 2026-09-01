@@ -9,8 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e5cb966e7e71964fb16f577ed6468ff, type: 3}
+  m_Script: {fileID: 11500000, guid: cefa91fd0db731142b984c97c5a1b104, type: 3}
   m_Name: Mushroom
-  m_EditorClassIdentifier: Assembly-CSharp::CollectibleItem
-  id: mushroom
-  displayName: Mushroom
+  m_EditorClassIdentifier: Assembly-CSharp::Item
+  itemName: Mushroom
+  icon: {fileID: 21300000, guid: aec1dc04bda5f694ead6c5b84ddf6c38, type: 3}
+  weight: 0.1
+  value: 15
+  maxStack: 20

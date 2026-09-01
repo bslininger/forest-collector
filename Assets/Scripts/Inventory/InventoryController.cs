@@ -6,26 +6,28 @@ using UnityEngine;
 public class InventoryController : MonoBehaviour
 {
     [SerializeField] private Inventory _controlledInventory;
-    private Dictionary<InventorySlotUIController, int> slotUIControllerToIndexMap;
+    private Dictionary<InventorySlotUIController, int> _slotUIControllerToIndexMap;
+
+    public bool ItemInCursorSlot => _controlledInventory.ItemInCursorSlot;
 
     private void Awake()
     {
-        slotUIControllerToIndexMap = new Dictionary<InventorySlotUIController, int>();
+        _slotUIControllerToIndexMap = new Dictionary<InventorySlotUIController, int>();
     }
 
     public void RegisterUIInventorySlot(InventorySlotUIController slotUIController, int index)
     {
-        slotUIControllerToIndexMap[slotUIController] = index;
+        _slotUIControllerToIndexMap[slotUIController] = index;
     }
 
     public void UnregisterUIInventorySlot(InventorySlotUIController slotUIController)
     {
-        slotUIControllerToIndexMap.Remove(slotUIController);
+        _slotUIControllerToIndexMap.Remove(slotUIController);
     }
 
     public void ClearAllRegistrations()
     {
-        slotUIControllerToIndexMap.Clear();
+        _slotUIControllerToIndexMap.Clear();
     }
 
     private void PublishInventoryUpdate(InventoryOperationResult inventoryOperationResult)
@@ -54,6 +56,18 @@ public class InventoryController : MonoBehaviour
         InventoryOperationResult inventoryOperationResult = _controlledInventory.AddItem(item, amountToAdd, slotIndexChoice, allowOverflowOutsideChosenSlot);
         if (inventoryOperationResult.OperationResultType == InventoryOperationResult.ResultType.ItemPartiallyAdded || inventoryOperationResult.OperationResultType == InventoryOperationResult.ResultType.NoSpace)
             Debug.LogWarning($"Out of {amountToAdd} items to add, {inventoryOperationResult.LeftoverItemCount} were lost due to not having space in the inventory. (Overflow to other slots was {(allowOverflowOutsideChosenSlot ? "" : "not ")}enabled.)");
+        PublishInventoryUpdate(inventoryOperationResult);
+        return inventoryOperationResult;
+    }
+
+    public InventoryOperationResult HandleRemoveItemFromInventory(Item item, int amountToRemove, bool allowPartialRemoval = false)
+    {
+        if (item == null)
+        {
+            Debug.LogWarning("Tried to remove a null item from the inventory.");
+            return InventoryOperationResult.NoOperation();
+        }
+        InventoryOperationResult inventoryOperationResult = _controlledInventory.RemoveItem(item, amountToRemove, allowPartialRemoval);
         PublishInventoryUpdate(inventoryOperationResult);
         return inventoryOperationResult;
     }

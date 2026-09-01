@@ -73,10 +73,6 @@ public class Inventory : MonoBehaviour
         inventoryEntries = new InventoryEntry[inventorySize];
     }
 
-    private void Update()
-    {
-    }
-
     private static InventoryOperationResult.ChangedSlot SlotChange(Inventory inventory, int index)
     {
         return new InventoryOperationResult.ChangedSlot(inventory, index);
@@ -459,6 +455,50 @@ public class Inventory : MonoBehaviour
         return InventoryOperationResult.ItemFullyAdded(changedSlots.ToArray());
     }
 
+    public InventoryOperationResult RemoveItem(Item item, int amount, bool allowPartialRemoval = false)
+    {
+        if (item == null)
+            throw new ArgumentNullException(nameof(item));
+        if (amount < 0)
+            throw new ArgumentOutOfRangeException(nameof(amount), $"Amount to remove needs to be nonnegative, given amount was {amount}.");
+        if (amount == 0)
+            return InventoryOperationResult.NoOperation();
+        int amountInInventory = GetItemCount(item);
+        if (amountInInventory <= 0)
+            return InventoryOperationResult.InsufficientItems(amount);
+        if (amount > amountInInventory && !allowPartialRemoval)
+            return InventoryOperationResult.InsufficientItems(amount);
+        int amountToRemove = Math.Min(amountInInventory, amount); // By this point, partial removal is allowed if the full amount isn't available.
+        bool partialRemoval = amountToRemove < amount;
+        int amountLeftToRemove = amountToRemove;
+        List<InventoryOperationResult.ChangedSlot> changedSlots = new List<InventoryOperationResult.ChangedSlot>();
+        for (int index = 0; index < inventoryEntries.Length; ++index)
+        {
+            InventoryEntry currentEntry = inventoryEntries[index];
+            if (currentEntry == null)
+                continue;
+            if (currentEntry.item != item)
+                continue;
+            if (currentEntry.stackSize <= amountLeftToRemove)
+            {
+                amountLeftToRemove -= currentEntry.stackSize;
+                inventoryEntries[index] = null;
+                changedSlots.Add(SlotChange(this, index));
+            }
+            else
+            {
+                currentEntry.SetStackSize(currentEntry.stackSize - amountLeftToRemove);
+                amountLeftToRemove = 0;
+                changedSlots.Add(SlotChange(this, index));
+            }
+            if (amountLeftToRemove <= 0)
+                break;
+        }
+        if (partialRemoval)
+            return InventoryOperationResult.ItemPartiallyRemoved(amount - amountToRemove, changedSlots.ToArray());
+        return InventoryOperationResult.ItemFullyRemoved(changedSlots.ToArray());
+    }
+
     public InventoryOperationResult PutItemInCursorSlot(Item item, int amount)
     {
         if (item == null)
@@ -500,6 +540,21 @@ public class Inventory : MonoBehaviour
         if (entry == null)
             return InventorySlotDisplayInformation.Empty(index);
         return InventorySlotDisplayInformation.Occupied(index, entry.item.itemName, entry.item.icon, entry.stackSize, entry.item.maxStack);
+    }
+
+    public int GetItemCount(Item itemToCount)
+    {
+        if (itemToCount == null)
+            throw new ArgumentNullException(nameof(itemToCount));
+        int itemCount = 0;
+        foreach (InventoryEntry entry in inventoryEntries)
+        {
+            if (entry == null || entry.item == null)
+                continue;
+            if (entry.item == itemToCount)
+                itemCount += entry.stackSize;
+        }
+        return itemCount;
     }
 
     public int InventorySize => inventorySize;
