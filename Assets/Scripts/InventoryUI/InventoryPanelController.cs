@@ -5,6 +5,7 @@ public class InventoryPanelController : MonoBehaviour
     [SerializeField] private Inventory _displayedInventory;
     [SerializeField] private InventoryController _inventoryController;
     [SerializeField] private InventoryInteractionController _inventoryInteractionController;
+    [SerializeField] private Transform _slotGrid;
     [SerializeField] private GameObject _slotPrefab;
     private GameObject[] _inventorySlots;
 
@@ -42,7 +43,7 @@ public class InventoryPanelController : MonoBehaviour
         _inventorySlots = new GameObject[_displayedInventory.InventorySize];
         for (int index = 0; index < _displayedInventory.InventorySize; ++index)
         {
-            _inventorySlots[index] = Instantiate(_slotPrefab, transform);
+            _inventorySlots[index] = Instantiate(_slotPrefab, _slotGrid);
             _inventorySlots[index].name = $"Inventory Slot {index}";
             InventorySlotUIController slotUIController = _inventorySlots[index].transform.GetComponent<InventorySlotUIController>();
             slotUIController.InputLockProvider = UIManager.Instance;
@@ -74,7 +75,7 @@ public class InventoryPanelController : MonoBehaviour
 
     void DestroyAllSlots()
     {
-        foreach (Transform child in transform)
+        foreach (Transform child in _slotGrid)
             Destroy(child.gameObject);
         _inventorySlots = null;
         _inventoryInteractionController.ClearRegistrationsByInventory(_displayedInventory);
