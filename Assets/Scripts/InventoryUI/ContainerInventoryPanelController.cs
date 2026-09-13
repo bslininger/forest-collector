@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,14 +11,18 @@ public class ContainerInventoryPanelController : MonoBehaviour
     [SerializeField] private Transform _slotGrid;
     [SerializeField] private TMP_Text _containerNameText;
     [SerializeField] private Image _containerIcon;
+    [SerializeField] private PanelDragHandle _dragHandle;
     [SerializeField] private Button _actionButton;
     [SerializeField] private GameObject _actionButtonRow;
     [SerializeField] private TMP_Text _actionButtonText;
     [SerializeField] private Button _closeButton;
 
-
     private InventoryContainer _activeContainer;
     private GameObject[] _containerInventorySlots;
+
+    public event Action<ContainerInventoryPanelController> ContainerClosedEvent;
+    public InventoryInteractionController InventoryInteractionController { set =>  _inventoryInteractionController = value; }
+    public RectTransform DragAllowedBounds { set => _dragHandle.DragAllowedBounds = value; }
 
     private void OnEnable()
     {
@@ -69,6 +74,7 @@ public class ContainerInventoryPanelController : MonoBehaviour
         _activeContainer.ActionDisplayStateChanged -= HandleActionButtonDisplayChanged;
         _activeContainer = null;
         gameObject.SetActive(false);
+        ContainerClosedEvent?.Invoke(this);
     }
 
     public void CloseContainerIfActive(InventoryContainer inventoryContainer)

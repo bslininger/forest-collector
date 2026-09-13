@@ -7,6 +7,8 @@ public class PanelDragHandle : MonoBehaviour, IBeginDragHandler, IDragHandler
     [SerializeField] private RectTransform _dragAllowedBounds;
     private Vector2 _dragOffset; // Difference between panel's pivot position and player's click position
 
+    public RectTransform DragAllowedBounds { set =>  _dragAllowedBounds = value; }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)_panel.parent, eventData.position, eventData.pressEventCamera, out Vector2 localPointerPosition))

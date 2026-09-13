@@ -16,21 +16,25 @@ public class UIManager : MonoBehaviour, IInputLockProvider
     // Actions
     [SerializeField] private InputActionReference _toggleInventoryAction;
 
-    // Canvases
+    // Canvases and canvas layers
     [SerializeField] private Canvas _inventoryUICanvas;
+    [SerializeField] private RectTransform _windowLayer;
 
     // Prefabs
     [SerializeField] private GameObject _stackSizeSelectorPrefab;
+    [SerializeField] private ContainerInventoryPanelController _containerInventoryPanelPrefab;
 
     // Controllers
+    [SerializeField] private InventoryInteractionController _inventoryInteractionController;
     [SerializeField] private InventoryPanelController _inventoryPanelController;
     private StackSizeSelectorPanelController _activeStackSizeSelectorPanelController;
-    [SerializeField] private ContainerInventoryPanelController _containerInventoryPanelController;
 
     // Accessors
     public Canvas InventoryUICanvas => _inventoryUICanvas;
 
-    private UIInputLock activeLocks = UIInputLock.None;
+    // Private fields
+    private UIInputLock _activeLocks = UIInputLock.None;
+    private ContainerInventoryPanelController _activeContainerInventoryPanelController;
 
     private void Awake()
     {
@@ -133,12 +137,29 @@ public class UIManager : MonoBehaviour, IInputLockProvider
 
     public void OpenContainer(InventoryContainer container, string containerName, Sprite containerIcon)
     {
-        _containerInventoryPanelController.OpenContainer(container, containerName, containerIcon);
+        if (_activeContainerInventoryPanelController != null)
+            return;
+        _activeContainerInventoryPanelController = Instantiate(_containerInventoryPanelPrefab, _windowLayer);
+        _activeContainerInventoryPanelController.ContainerClosedEvent += HandleContainerPanelClosed;
+        _activeContainerInventoryPanelController.InventoryInteractionController = _inventoryInteractionController;
+        _activeContainerInventoryPanelController.DragAllowedBounds = _windowLayer;
+
+        _activeContainerInventoryPanelController.OpenContainer(container, containerName, containerIcon);
     }
 
     public void CloseContainerIfOpened(InventoryContainer container)
     {
-        _containerInventoryPanelController.CloseContainerIfActive(container);
+        if (_activeContainerInventoryPanelController != null)
+            _activeContainerInventoryPanelController.CloseContainerIfActive(container);
+    }
+
+    private void HandleContainerPanelClosed(ContainerInventoryPanelController containerInventoryPanelController)
+    {
+        if (containerInventoryPanelController != _activeContainerInventoryPanelController)
+            return;
+        _activeContainerInventoryPanelController.ContainerClosedEvent -= HandleContainerPanelClosed;
+        Destroy(containerInventoryPanelController.gameObject);
+        _activeContainerInventoryPanelController = null;
     }
 
     public bool StackSizeSelectorPanelOpen => _activeStackSizeSelectorPanelController != null;
@@ -151,7 +172,7 @@ public class UIManager : MonoBehaviour, IInputLockProvider
             Debug.LogError($"Attempted to lock {lockType}, which is already locked."); // This lock system allows only one entity to lock a specific lock at a time.
             return;
         }
-        activeLocks |= lockType;
+        _activeLocks |= lockType;
     }
 
     public void RemoveInputLock(UIInputLock lockType)
@@ -161,13 +182,13 @@ public class UIManager : MonoBehaviour, IInputLockProvider
             Debug.LogWarning($"Attempted to unlock {lockType}, but it wasn't locked. Was this intentional?");
             return;
         }
-        activeLocks &= ~lockType;
+        _activeLocks &= ~lockType;
     }
 
     #region IInputLockProvider
     public bool InputLocked(UIInputLock lockType)
     {
-        return (activeLocks & lockType) != 0;
+        return (_activeLocks & lockType) != 0;
     }
     #endregion
 
