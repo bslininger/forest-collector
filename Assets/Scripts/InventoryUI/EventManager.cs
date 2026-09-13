@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public static class EventManager
 {
     public static event Action<InventoryOperationResult.ChangedSlot[]> InventoryUpdateEvent;
-    public static event System.Action<InventorySlotUIController> InventorySlotClickedEvent;
+    public static event Action<InventorySlotUIController> InventorySlotClickedEvent;
 
     public static void TriggerInventoryUpdateEvent(InventoryOperationResult.ChangedSlot[] changedSlots)
     {
