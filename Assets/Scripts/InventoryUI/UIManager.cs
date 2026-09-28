@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -34,7 +35,7 @@ public class UIManager : MonoBehaviour, IInputLockProvider
 
     // Private fields
     private UIInputLock _activeLocks = UIInputLock.None;
-    private ContainerInventoryPanelController _activeContainerInventoryPanelController;
+    private Dictionary<InventoryContainer, ContainerInventoryPanelController> _activeInventoryContainerToPanelControllerMap;
 
     private void Awake()
     {
@@ -46,6 +47,8 @@ public class UIManager : MonoBehaviour, IInputLockProvider
         }
         else
             Instance = this;
+
+        _activeInventoryContainerToPanelControllerMap = new();
     }
 
     private void OnEnable()
@@ -137,29 +140,43 @@ public class UIManager : MonoBehaviour, IInputLockProvider
 
     public void OpenContainer(InventoryContainer container, string containerName, Sprite containerIcon)
     {
-        if (_activeContainerInventoryPanelController != null)
+        if (_activeInventoryContainerToPanelControllerMap.TryGetValue(container, out ContainerInventoryPanelController existingContainerInventoryPanelController))
+        {
+            // This panel is already open; move it to the front of any other panels it is behind.
+            existingContainerInventoryPanelController.transform.SetAsLastSibling();
             return;
-        _activeContainerInventoryPanelController = Instantiate(_containerInventoryPanelPrefab, _windowLayer);
-        _activeContainerInventoryPanelController.ContainerClosedEvent += HandleContainerPanelClosed;
-        _activeContainerInventoryPanelController.InventoryInteractionController = _inventoryInteractionController;
-        _activeContainerInventoryPanelController.DragAllowedBounds = _windowLayer;
+        }
 
-        _activeContainerInventoryPanelController.OpenContainer(container, containerName, containerIcon);
+        ContainerInventoryPanelController openedContainerInventoryPanelController = Instantiate(_containerInventoryPanelPrefab, _windowLayer);
+        openedContainerInventoryPanelController.ContainerClosedEvent += HandleContainerPanelClosed;
+        openedContainerInventoryPanelController.InventoryInteractionController = _inventoryInteractionController;
+        openedContainerInventoryPanelController.DragAllowedBounds = _windowLayer;
+        _activeInventoryContainerToPanelControllerMap[container] = openedContainerInventoryPanelController;
+
+        openedContainerInventoryPanelController.OpenContainer(container, containerName, containerIcon);
     }
 
     public void CloseContainerIfOpened(InventoryContainer container)
     {
-        if (_activeContainerInventoryPanelController != null)
-            _activeContainerInventoryPanelController.CloseContainerIfActive(container);
+        if (_activeInventoryContainerToPanelControllerMap.TryGetValue(container, out ContainerInventoryPanelController activeContainerInventoryPanelController))
+            activeContainerInventoryPanelController.CloseContainer();
     }
 
-    private void HandleContainerPanelClosed(ContainerInventoryPanelController containerInventoryPanelController)
+    private void HandleContainerPanelClosed(InventoryContainer container, ContainerInventoryPanelController containerInventoryPanelController)
     {
-        if (containerInventoryPanelController != _activeContainerInventoryPanelController)
+        if (!_activeInventoryContainerToPanelControllerMap.TryGetValue(container, out ContainerInventoryPanelController closingContainerInventoryPanelController))
+        {
+            Debug.LogWarning("Received a close event for a container with no registered panel.", container);
             return;
-        _activeContainerInventoryPanelController.ContainerClosedEvent -= HandleContainerPanelClosed;
+        }
+        if (containerInventoryPanelController != closingContainerInventoryPanelController)
+        {
+            Debug.LogError("Received a close event from a panel that is not registered for that container.", containerInventoryPanelController);
+            return;
+        }
+        containerInventoryPanelController.ContainerClosedEvent -= HandleContainerPanelClosed;
+        _activeInventoryContainerToPanelControllerMap.Remove(container);
         Destroy(containerInventoryPanelController.gameObject);
-        _activeContainerInventoryPanelController = null;
     }
 
     public bool StackSizeSelectorPanelOpen => _activeStackSizeSelectorPanelController != null;

@@ -20,7 +20,7 @@ public class ContainerInventoryPanelController : MonoBehaviour
     private InventoryContainer _activeContainer;
     private GameObject[] _containerInventorySlots;
 
-    public event Action<ContainerInventoryPanelController> ContainerClosedEvent;
+    public event Action<InventoryContainer, ContainerInventoryPanelController> ContainerClosedEvent;
     public InventoryInteractionController InventoryInteractionController { set =>  _inventoryInteractionController = value; }
     public RectTransform DragAllowedBounds { set => _dragHandle.DragAllowedBounds = value; }
 
@@ -72,16 +72,9 @@ public class ContainerInventoryPanelController : MonoBehaviour
         foreach (Transform child in _slotGrid)
             Destroy(child.gameObject);
         _activeContainer.ActionDisplayStateChanged -= HandleActionButtonDisplayChanged;
-        _activeContainer = null;
         gameObject.SetActive(false);
-        ContainerClosedEvent?.Invoke(this);
-    }
-
-    public void CloseContainerIfActive(InventoryContainer inventoryContainer)
-    {
-        if (_activeContainer == null || _activeContainer != inventoryContainer)
-            return;
-        CloseContainer();
+        ContainerClosedEvent?.Invoke(_activeContainer, this);
+        _activeContainer = null;
     }
 
     private void UpdateDirtySlots(InventoryOperationResult.ChangedSlot[] changedSlots)
