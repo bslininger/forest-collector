@@ -1585,7 +1585,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   _toggleInventoryAction: {fileID: 8147101508724399127, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _inventoryUICanvas: {fileID: 2071256730}
-  _windowLayer: {fileID: 1568156943}
+  _windowLayerController: {fileID: 1568156944}
   _stackSizeSelectorPrefab: {fileID: 3035374957324475523, guid: 1dab12d2469c727489740d0ac40d6fdb, type: 3}
   _containerInventoryPanelPrefab: {fileID: 757093730772777333, guid: 97708cc241df5f8409d92283dc5e59f0, type: 3}
   _inventoryInteractionController: {fileID: 326814467}
@@ -3712,6 +3712,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a6b89c56fe19bf479d3e52020e0acf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WindowLayerController
+  _windowCascadeStep: {x: 24, y: -24}
 --- !u!1001 &1572740446
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -5,7 +5,9 @@ using UnityEngine.InputSystem;
 
 public class WindowLayerController : MonoBehaviour
 {
-    void Update()
+    [SerializeField] private Vector2 _windowCascadeStep;
+
+    private void Update()
     {
         if (Pointer.current.press.wasPressedThisFrame)
         {
@@ -23,5 +25,39 @@ public class WindowLayerController : MonoBehaviour
                 hitTarget = hitTarget.parent;
             hitTarget.SetAsLastSibling();
         }
+    }
+
+    public void PositionNewWindow(RectTransform window)
+    {
+        Vector2 initialAnchoredPosition = window.anchoredPosition;
+        Vector2 initialTopLeftPoint = GetTopLeftPointOfWindow(window);
+        List<Vector2> occupiedPositions = new();
+        foreach (Transform otherWindow in transform) // All windows are children of this WindowLayerController
+        {
+            if (window == otherWindow)
+                continue; // Skip this one, it's not an "other" window
+            if (!otherWindow.gameObject.activeInHierarchy)
+                continue;
+            occupiedPositions.Add(GetTopLeftPointOfWindow((RectTransform)otherWindow));
+        }
+        float squaredCascadeStepDistanceTolerance = _windowCascadeStep.sqrMagnitude / 4.0f; // Half of _windowCascadeStep, squared
+        for (int positionIndex = 0; positionIndex <= occupiedPositions.Count; ++positionIndex)
+        {
+            // Start at the initial top left point, and check that point, plus all points a number of cascade steps away, for an empty space (top-left corner position) to position this window.
+            // A space is empty if the top-left corner of another window isn't inside a circle centered at the candidate location with a radius of half of _windowCascadeStep.
+            // Go one more step than the number of open windows (the <= in the for-loop) in case all spaces are occupied.
+            Vector2 candidateTopLeftPoint = initialTopLeftPoint + positionIndex * _windowCascadeStep;
+            if (!occupiedPositions.Exists(occupiedPosition => (occupiedPosition - candidateTopLeftPoint).sqrMagnitude < squaredCascadeStepDistanceTolerance))
+            {
+                window.anchoredPosition = initialAnchoredPosition + positionIndex * _windowCascadeStep;
+                break;
+            }
+        }
+    }
+
+    private Vector2 GetTopLeftPointOfWindow(RectTransform window)
+    {
+        Bounds windowRelativeBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(transform, window);
+        return new Vector2(windowRelativeBounds.min.x, windowRelativeBounds.max.y);
     }
 }

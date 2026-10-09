@@ -19,7 +19,7 @@ public class UIManager : MonoBehaviour, IInputLockProvider
 
     // Canvases and canvas layers
     [SerializeField] private Canvas _inventoryUICanvas;
-    [SerializeField] private RectTransform _windowLayer;
+    [SerializeField] private WindowLayerController _windowLayerController;
 
     // Prefabs
     [SerializeField] private GameObject _stackSizeSelectorPrefab;
@@ -36,6 +36,7 @@ public class UIManager : MonoBehaviour, IInputLockProvider
     // Private fields
     private UIInputLock _activeLocks = UIInputLock.None;
     private Dictionary<InventoryContainer, ContainerInventoryPanelController> _activeInventoryContainerToPanelControllerMap;
+    private RectTransform _windowLayerRectTransform;
 
     private void Awake()
     {
@@ -49,6 +50,7 @@ public class UIManager : MonoBehaviour, IInputLockProvider
             Instance = this;
 
         _activeInventoryContainerToPanelControllerMap = new();
+        _windowLayerRectTransform = (RectTransform)_windowLayerController.transform;
     }
 
     private void OnEnable()
@@ -147,10 +149,12 @@ public class UIManager : MonoBehaviour, IInputLockProvider
             return;
         }
 
-        ContainerInventoryPanelController openedContainerInventoryPanelController = Instantiate(_containerInventoryPanelPrefab, _windowLayer);
+        ContainerInventoryPanelController openedContainerInventoryPanelController = Instantiate(_containerInventoryPanelPrefab, _windowLayerRectTransform);
+        RectTransform newPanelWindow = (RectTransform)openedContainerInventoryPanelController.transform;
+        _windowLayerController.PositionNewWindow(newPanelWindow);
         openedContainerInventoryPanelController.ContainerClosedEvent += HandleContainerPanelClosed;
         openedContainerInventoryPanelController.InventoryInteractionController = _inventoryInteractionController;
-        openedContainerInventoryPanelController.DragAllowedBounds = _windowLayer;
+        openedContainerInventoryPanelController.DragAllowedBounds = _windowLayerRectTransform;
         _activeInventoryContainerToPanelControllerMap[container] = openedContainerInventoryPanelController;
 
         openedContainerInventoryPanelController.OpenContainer(container, containerName, containerIcon);
