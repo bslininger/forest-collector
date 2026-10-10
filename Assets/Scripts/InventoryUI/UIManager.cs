@@ -98,8 +98,9 @@ public class UIManager : MonoBehaviour, IInputLockProvider
             return false;
         }
 
-        GameObject panelInstance = Instantiate(_stackSizeSelectorPrefab, _inventoryUICanvas.transform);
+        GameObject panelInstance = Instantiate(_stackSizeSelectorPrefab, _windowLayerRectTransform);
         StackSizeSelectorPanelController stackSizeSelectorPanelController = panelInstance.GetComponent<StackSizeSelectorPanelController>();
+        stackSizeSelectorPanelController.DragAllowedBounds = _windowLayerRectTransform;
         RectTransform stackSizeSelectorPanelRectTransform = panelInstance.GetComponent<RectTransform>();
         Vector3 inventorySlotBottomRightCorner = GetBottomRightWorldCorner(inventorySlotRectTransform);
         Vector3 localAnchorLocation = ((RectTransform)stackSizeSelectorPanelRectTransform.parent).InverseTransformPoint(inventorySlotBottomRightCorner);

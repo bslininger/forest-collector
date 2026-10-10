@@ -5,82 +5,79 @@ using System;
 
 public class StackSizeSelectorPanelController : MonoBehaviour
 {
-    [SerializeField] private Slider slider;
-    [SerializeField] private TMP_InputField inputField;
-    [SerializeField] private TextMeshProUGUI itemNameText;
-    [SerializeField] private InventorySlotUIController slotUIController;
-    private InventorySlotDisplayInformation inventorySlotDisplayInformation;
+    [SerializeField] private PanelDragHandle _dragHandle;
+    [SerializeField] private Slider _slider;
+    [SerializeField] private TMP_InputField _inputField;
+    [SerializeField] private TextMeshProUGUI _itemNameText;
+    [SerializeField] private InventorySlotUIController _slotUIController;
+    private InventorySlotDisplayInformation _inventorySlotDisplayInformation;
 
-    private Action<int> onAccept; // This is the callback for the Accept button, defined outside this controller but stored inside it. Destroying afterward handled outside as well.
-    private Action onCancel;
-    private int currentSelectedAmount => Mathf.RoundToInt(slider.value);
+    private Action<int> _onAccept; // This is the callback for the Accept button, defined outside this controller but stored inside it. Destroying afterward handled outside as well.
+    private Action _onCancel;
+    private int _currentSelectedAmount => Mathf.RoundToInt(_slider.value);
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public RectTransform DragAllowedBounds { set => _dragHandle.DragAllowedBounds = value; }
+
     void Start()
     {
-        inputField.text = "1";
+        _inputField.text = "1";
 
-        slider.onValueChanged.AddListener((float value) =>
+        _slider.onValueChanged.AddListener((float value) =>
         {
-            inputField.text = Mathf.RoundToInt(value).ToString();
+            _inputField.text = Mathf.RoundToInt(value).ToString();
         });
-        slider.minValue = 1;
-        slider.wholeNumbers = true;
+        _slider.minValue = 1;
+        _slider.wholeNumbers = true;
 
-        inputField.onValueChanged.AddListener((string text) =>
+        _inputField.onValueChanged.AddListener((string text) =>
         {
             if (int.TryParse(text, out int value))
             {
-                value = Mathf.Clamp(value, 1, (int)slider.maxValue);
-                slider.value = value;
-                slotUIController.SetSlot(inventorySlotDisplayInformation);
-                slotUIController.OverrideStackText(value);
+                value = Mathf.Clamp(value, 1, (int)_slider.maxValue);
+                _slider.value = value;
+                _slotUIController.SetSlot(_inventorySlotDisplayInformation);
+                _slotUIController.OverrideStackText(value);
             }
         });
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void InitializePreviewSlot(InventorySlotDisplayInformation displayInformation)
     {
-        inventorySlotDisplayInformation = displayInformation;
-        slider.maxValue = inventorySlotDisplayInformation.StackSize;
-        slider.value = 1;
-        slotUIController.SetSlot(inventorySlotDisplayInformation);
-        slotUIController.OverrideStackText(1);
+        _inventorySlotDisplayInformation = displayInformation;
+        _itemNameText.text = displayInformation.ItemName;
+        _slider.maxValue = _inventorySlotDisplayInformation.StackSize;
+        _slider.value = 1;
+        _slotUIController.SetSlot(_inventorySlotDisplayInformation);
+        _slotUIController.OverrideStackText(1);
     }
 
     public void SetAcceptCallback(Action<int> callback)
     {
-        onAccept = callback;
+        _onAccept = callback;
     }
 
     public void SetCancelCallback(Action callback)
     {
-        onCancel = callback;
+        _onCancel = callback;
     }
 
     public void OnAcceptButtonClicked()
     {
-        onAccept?.Invoke(currentSelectedAmount);
+        _onAccept?.Invoke(_currentSelectedAmount);
     }
 
     public void OnCancelButtonClicked()
     {
-        onCancel?.Invoke();
+        _onCancel?.Invoke();
     }
 
     public void IncrementValue()
     {
-        slider.value += 1;
+        _slider.value += 1;
     }
 
     public void DecrementValue()
     {
-        slider.value -= 1;
+        _slider.value -= 1;
     }
 }
