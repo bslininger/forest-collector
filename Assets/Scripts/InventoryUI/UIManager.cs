@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [Flags]
 public enum UIInputLock
@@ -152,13 +153,14 @@ public class UIManager : MonoBehaviour, IInputLockProvider
 
         ContainerInventoryPanelController openedContainerInventoryPanelController = Instantiate(_containerInventoryPanelPrefab, _windowLayerRectTransform);
         RectTransform newPanelWindow = (RectTransform)openedContainerInventoryPanelController.transform;
-        _windowLayerController.PositionNewWindow(newPanelWindow);
         openedContainerInventoryPanelController.ContainerClosedEvent += HandleContainerPanelClosed;
         openedContainerInventoryPanelController.InventoryInteractionController = _inventoryInteractionController;
         openedContainerInventoryPanelController.DragAllowedBounds = _windowLayerRectTransform;
         _activeInventoryContainerToPanelControllerMap[container] = openedContainerInventoryPanelController;
 
         openedContainerInventoryPanelController.OpenContainer(container, containerName, containerIcon);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(newPanelWindow);
+        _windowLayerController.PositionNewWindow(newPanelWindow);
     }
 
     public void CloseContainerIfOpened(InventoryContainer container)

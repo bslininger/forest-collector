@@ -57,7 +57,10 @@ public class WindowLayerController : MonoBehaviour
 
     private Vector2 GetTopLeftPointOfWindow(RectTransform window)
     {
-        Bounds windowRelativeBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(transform, window);
-        return new Vector2(windowRelativeBounds.min.x, windowRelativeBounds.max.y);
+        Vector3[] fourCornersArray = new Vector3[4];
+        window.GetWorldCorners(fourCornersArray);
+        Vector3 topLeftCornerWorld = fourCornersArray[1]; // The top left corner is assigned to index 1 after calling GetWorldCorners()
+        Vector3 topLeftCornerLocal = transform.InverseTransformPoint(topLeftCornerWorld);
+        return topLeftCornerLocal;
     }
 }
