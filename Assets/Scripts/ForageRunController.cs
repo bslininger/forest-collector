@@ -116,11 +116,6 @@ public class ForageRunController : MonoBehaviour
         _dialogueBoxOpen = false;
     }
 
-    public void HandleWorldContainerInteract(InventoryContainer worldContainer, string containerName, Sprite containerIcon)
-    {
-        _inventoryUIManager.OpenContainer(worldContainer, containerName, containerIcon);
-    }
-
     private void HandleInteractableObjectExitedRange(IInteractableObject interactableObject)
     {
         if (interactableObject is InteractableContainer interactableContainer)
