@@ -3,7 +3,6 @@ using UnityEngine;
 public class InventoryPanelController : MonoBehaviour
 {
     [SerializeField] private Inventory _displayedInventory;
-    [SerializeField] private InventoryController _inventoryController;
     [SerializeField] private InventoryInteractionController _inventoryInteractionController;
     [SerializeField] private Transform _slotGrid;
     [SerializeField] private GameObject _slotPrefab;

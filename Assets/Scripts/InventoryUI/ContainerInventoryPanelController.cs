@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class ContainerInventoryPanelController : MonoBehaviour
 {
-    [SerializeField] private InventoryController _inventoryController;
-    [SerializeField] private InventoryInteractionController _inventoryInteractionController;
     [SerializeField] private GameObject _slotPrefab;
     [SerializeField] private Transform _slotGrid;
     [SerializeField] private TMP_Text _containerNameText;
@@ -17,6 +15,7 @@ public class ContainerInventoryPanelController : MonoBehaviour
     [SerializeField] private TMP_Text _actionButtonText;
     [SerializeField] private Button _closeButton;
 
+    private InventoryInteractionController _inventoryInteractionController;
     private InventoryContainer _activeContainer;
     private GameObject[] _containerInventorySlots;
 
