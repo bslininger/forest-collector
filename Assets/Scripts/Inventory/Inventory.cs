@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    [SerializeField] private int inventorySize = 30;
+    [SerializeField] private int _inventorySize = 30;
+    [SerializeField] private List<InventoryStartingEntry> _inventoryStartingEntries = new();
 
     public class InventoryEntry
     {
@@ -70,7 +71,23 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
-        inventoryEntries = new InventoryEntry[inventorySize];
+        inventoryEntries = new InventoryEntry[_inventorySize];
+        foreach (InventoryStartingEntry startingEntry in _inventoryStartingEntries)
+        {
+            if (startingEntry.Item == null)
+            {
+                Debug.LogError("Tried to add a null starting item to an inventory.", this);
+                continue;
+            }
+            if (startingEntry.Quantity <= 0)
+            {
+                Debug.LogError($"Tried to add a starting item entry for {startingEntry.Item.itemName} with quantity {startingEntry.Quantity} to an inventory; the quantity must be a positive integer.", this);
+                continue;
+            }
+            InventoryOperationResult addStartingItemOperationResult = AddItem(startingEntry.Item, startingEntry.Quantity);
+            if (addStartingItemOperationResult.OperationResultType == InventoryOperationResult.ResultType.ItemPartiallyAdded || addStartingItemOperationResult.OperationResultType == InventoryOperationResult.ResultType.NoSpace)
+                Debug.LogWarning($"When adding the starting inventory item {startingEntry.Item.itemName}, there was not enough room to add all {startingEntry.Quantity} items; {addStartingItemOperationResult.LeftoverItemCount} could not be added.", this);
+        }
     }
 
     private static InventoryOperationResult.ChangedSlot SlotChange(Inventory inventory, int index)
@@ -383,7 +400,7 @@ public class Inventory : MonoBehaviour
         List<InventoryOperationResult.ChangedSlot> changedSlots = new List<InventoryOperationResult.ChangedSlot>();
 
         // First: try to put all items in the slot at the chosen index. If that is successful, then return early.
-        if (slotIndexChoice.HasValue && slotIndexChoice.Value < inventorySize)
+        if (slotIndexChoice.HasValue && slotIndexChoice.Value < _inventorySize)
         {
             int inventoryEntryIndex = slotIndexChoice.Value;
             if (inventoryEntries[inventoryEntryIndex] == null)
@@ -410,7 +427,7 @@ public class Inventory : MonoBehaviour
         if (!slotIndexChoice.HasValue || (slotIndexChoice.HasValue && allowOverflowOutsideChosenSlot))
         {
             // Fill in any existing stacks.
-            for (int index = 0; index < inventorySize; ++index)
+            for (int index = 0; index < _inventorySize; ++index)
             {
                 InventoryEntry entry = inventoryEntries[index];
                 if (entry != null && entry.item == item && entry.stackSize < maxStackSize)
@@ -427,7 +444,7 @@ public class Inventory : MonoBehaviour
 
             // If there are still items to add, add them in empty entries in order from beginning to end.
             Queue<int> emptyEntryIndices = new Queue<int>();
-            for (int index = 0; index < inventorySize; ++index)
+            for (int index = 0; index < _inventorySize; ++index)
             {
                 if (inventoryEntries[index] == null)
                 {
@@ -557,7 +574,7 @@ public class Inventory : MonoBehaviour
         return itemCount;
     }
 
-    public int InventorySize => inventorySize;
+    public int InventorySize => _inventorySize;
     public const int CursorSlotIndex = -1;
     public bool ItemInCursorSlot => cursorInventoryEntry != null;
 }

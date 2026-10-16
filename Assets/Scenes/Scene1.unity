@@ -2070,7 +2070,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e65e465b4bd92648b18fc4d8789c1fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Inventory
-  inventorySize: 10
+  _inventorySize: 10
+  _inventoryStartingEntries: []
 --- !u!54 &766584563
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2622,7 +2623,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e65e465b4bd92648b18fc4d8789c1fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Inventory
-  inventorySize: 10
+  _inventorySize: 10
+  _inventoryStartingEntries: []
 --- !u!114 &861033094
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3292,7 +3294,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e65e465b4bd92648b18fc4d8789c1fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Inventory
-  inventorySize: 30
+  _inventorySize: 30
+  _inventoryStartingEntries: []
 --- !u!114 &1360551227
 MonoBehaviour:
   m_ObjectHideFlags: 0
