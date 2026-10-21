@@ -2030,7 +2030,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryPanelController
   _displayedInventory: {fileID: 1360551226}
-  _inventoryController: {fileID: 1360551227}
   _inventoryInteractionController: {fileID: 326814467}
   _slotGrid: {fileID: 1867200095}
   _slotPrefab: {fileID: 1296966723602450390, guid: 4ed57193ddf16034bb67688966b3108f, type: 3}
