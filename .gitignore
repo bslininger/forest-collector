@@ -63,5 +63,8 @@ desktop.ini
 _ReSharper*/
 *.DotSettings.user
 
+# Local planning notes
+/BACKLOG.md
+
 # Plastic SCM / Unity Version Control metadata
 .plastic/
