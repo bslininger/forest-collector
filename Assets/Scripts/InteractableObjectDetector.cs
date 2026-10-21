@@ -74,6 +74,8 @@ public class InteractableObjectDetector : MonoBehaviour
         float closestDistance = Mathf.Infinity;
         foreach (IInteractableObject interactableObject in _nearbyInteractableObjects)
         {
+            if (!interactableObject.CanInteract)
+                continue;
             float squaredDistance = (interactableObject.WorldPosition - transform.position).sqrMagnitude;
             if (squaredDistance < closestDistance)
             {
@@ -115,6 +117,8 @@ public class InteractableObjectDetector : MonoBehaviour
     public bool TryInteract(IInteractableObject interactableObject)
     {
         if (!IsInRange(interactableObject))
+            return false;
+        if (!interactableObject.CanInteract)
             return false;
         interactableObject.Interact();
         return true;

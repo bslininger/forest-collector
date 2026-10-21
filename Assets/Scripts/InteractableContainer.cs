@@ -7,6 +7,7 @@ public class InteractableContainer : MonoBehaviour, IClickInteractableObject
     [SerializeField] private Sprite _containerIcon;
 
     public string InteractionPromptText => "Open";
+    public bool CanInteract => true;
     public Vector3 WorldPosition => transform.position;
     public InventoryContainer InventoryContainer => _inventoryContainer;
 

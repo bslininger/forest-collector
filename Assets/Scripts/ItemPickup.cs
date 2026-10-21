@@ -7,6 +7,7 @@ public class ItemPickup : MonoBehaviour, IClickInteractableObject
     [SerializeField] private Item _inventoryItem;
     private IInputLockProvider _inputLockProvider;
     public string InteractionPromptText => "Collect " + _inventoryItem.DisplayName;
+    public bool CanInteract => true;
     public Vector3 WorldPosition => transform.position;
     public Item InventoryItem => _inventoryItem;
 

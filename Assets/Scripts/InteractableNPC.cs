@@ -9,6 +9,7 @@ public class InteractableNPC : MonoBehaviour, IInteractableObject
     [SerializeField] private ItemRequirementTracker _itemRequirementTracker;
 
     public string InteractionPromptText => "Talk";
+    public bool CanInteract => true;
     public Vector3 WorldPosition => transform.position;
 
     public void Interact()
