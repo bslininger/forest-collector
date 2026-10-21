@@ -9,7 +9,6 @@ public class ItemPickup : MonoBehaviour, IClickInteractableObject
     public string InteractionPromptText => "Collect " + _inventoryItem.DisplayName;
     public bool CanInteract => true;
     public Vector3 WorldPosition => transform.position;
-    public Item InventoryItem => _inventoryItem;
 
     private void Start()
     {
@@ -28,6 +27,7 @@ public class ItemPickup : MonoBehaviour, IClickInteractableObject
 
     public void Pickup()
     {
-        _gameController.HandleCollectibleItemInteract(this);
+        if (_gameController.TryPutItemInPlayerCursor(_inventoryItem, 1))
+            Remove();
     }
 }

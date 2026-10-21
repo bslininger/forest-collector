@@ -73,16 +73,15 @@ public class ForageRunController : MonoBehaviour
         }
     }
 
-    public void HandleCollectibleItemInteract(ItemPickup collectedItem)
+    public bool TryPutItemInPlayerCursor(Item item, int quantityToPickUp)
     {
         if (_playerInventoryController.ItemInCursorSlot)
-            return;
-
-        InventoryOperationResult inventoryOperationResult = _playerInventoryController.HandlePutItemInCursorSlot(collectedItem.InventoryItem, 1);
+            return false;
+        InventoryOperationResult inventoryOperationResult = _playerInventoryController.HandlePutItemInCursorSlot(item, quantityToPickUp);
         if (inventoryOperationResult.OperationResultType != InventoryOperationResult.ResultType.PickupToCursor)
-            return;
-        collectedItem.Remove();
+            return false;
         _inventoryUIManager.ActivateInventoryPanel();
+        return true;
     }
 
     public void OnAdvanceDialogueAction(InputAction.CallbackContext context)
